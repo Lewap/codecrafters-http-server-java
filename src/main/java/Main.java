@@ -1,11 +1,15 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.stream.Collectors;
 
 public class Main {
 
     private static PrintWriter out;
+    private static BufferedReader in;
 
     public static void main(String[] args) {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -23,10 +27,17 @@ public class Main {
        Socket socket = serverSocket.accept();
        System.out.println("accepted new connection");
 
+       in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+       String clientInput = in.readLine();
+       String uri = clientInput.split(" ")[1];
+
        out = new PrintWriter(socket.getOutputStream(), true);
-       out.println("HTTP/1.1 200 OK\r\n\r\n");
+       if ( !"/".equals(uri) ) {
+           out.println("HTTP/1.1 404 Not Found\r\n\r\n");
+       } else {
+           out.println("HTTP/1.1 200 OK\r\n\r\n");
+       }
        out.close();
-       System.out.println("responded with 200");
 
      } catch (IOException e) {
        System.out.println("IOException: " + e.getMessage());
