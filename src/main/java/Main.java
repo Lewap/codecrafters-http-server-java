@@ -24,7 +24,7 @@ public class Main {
        System.out.println("accepted new connection");
 
        out = new PrintWriter(socket.getOutputStream(), true);
-       out.println("HTTP/1.1 200 OK\\r\\n\\r\\n");
+       out.println("HTTP/1.1 200 OK\r\n\r\n");
        out.close();
        System.out.println("responded with 200");
 
