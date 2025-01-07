@@ -29,13 +29,29 @@ public class Main {
 
        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
        String clientInput = in.readLine();
-       String uri = clientInput.split(" ")[1];
+       String[] uriParsed = null;
+       String uri = "/";
+       try {
+           uriParsed = clientInput.split(" ")[1].split("/");
+           uri = clientInput.split(" ")[1];
+           System.out.println("req = " + uri + " uriParsed " + uriParsed[1] + " " + uriParsed[2]);
+       } catch (Exception e) {
+             System.out.println("client input event: " + e.getMessage());
+       }
+
+       //Integer clientInputLength = uri.length()-1;
+
+       boolean isEchoUri = (uriParsed != null && uriParsed.length == 3 && "echo".equals(uriParsed[1]) );
 
        out = new PrintWriter(socket.getOutputStream(), true);
-       if ( !"/".equals(uri) ) {
-           out.println("HTTP/1.1 404 Not Found\r\n\r\n");
+       if ( "/".equals(uri)
+            || isEchoUri) {
+           if ( isEchoUri )
+               out.println("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + uriParsed[2].length() + "\r\n\r\n" + uriParsed[2]);
+           else
+               out.println("HTTP/1.1 200 OK\r\n\r\n");
        } else {
-           out.println("HTTP/1.1 200 OK\r\n\r\n");
+           out.println("HTTP/1.1 404 Not Found\r\n\r\n");
        }
        out.close();
 
