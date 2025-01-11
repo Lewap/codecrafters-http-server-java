@@ -1,11 +1,6 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import server.MyServer;
+
+import java.util.Arrays;
 
 public class Main {
 
@@ -13,7 +8,9 @@ public class Main {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     System.out.println("Logs from your program will appear here!");
 
-    MyServer server = new MyServer();
+    System.out.println("args = " + Arrays.toString(args));
+
+    MyServer server = new MyServer( args );
     server.start(4221);
 
   }
