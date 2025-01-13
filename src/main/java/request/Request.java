@@ -6,6 +6,7 @@ public class Request {
 
     private final List<String> requestLines;
     private final String[] args;
+    private String body;
 
     public Request ( List<String> requestLines, String[] args ) {
         this.requestLines = requestLines;
@@ -18,7 +19,7 @@ public class Request {
 
     public String getRootOfTheEndpoint () {
 
-        String result = null;
+        String result;
         String[] VERBLineParsed = getVERBLineParsed();
         String uri = VERBLineParsed[VERBLineParsed.length-2];
         String[] uriParsed = uri.split("/");
@@ -43,17 +44,13 @@ public class Request {
 
     public String[] getVERBLineParsed () {
 
-        String[] result = null;
-        String[] VERBLineParsed;
+        return this.requestLines.get(0).split(" ");
 
-        for (String requestLine : this.requestLines) {
-            if ( requestLine.startsWith("GET") ) {
-                VERBLineParsed = requestLine.split(" ");
-                result = VERBLineParsed;
-            }
-        }
+    }
 
-        return result;
+    public String getVERB () {
+
+        return getVERBLineParsed()[0];
 
     }
 
@@ -68,8 +65,31 @@ public class Request {
                 result = UserAgentLineParsed;
             }
         }
+        return result;
+    }
+
+    public int getContentLength () {
+
+        int result = -1;
+        String[] ContentLengthLineParsed = null;
+
+        for (String requestLine : this.requestLines) {
+            if ( requestLine.startsWith("Content-Length:") ) {
+                ContentLengthLineParsed = requestLine.split(" ");
+                result = Integer.parseInt(ContentLengthLineParsed[1]);
+            }
+        }
 
         return result;
+
+    }
+
+    public void setBody (String body) {
+        this.body = body;
+    }
+
+    public String getBody () {
+        return this.body;
     }
 
 }

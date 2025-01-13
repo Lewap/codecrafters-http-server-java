@@ -4,28 +4,32 @@ import annotations.RequestHandler;
 import org.springframework.stereotype.Service;
 import request.Request;
 
-import javax.imageio.IIOException;
 import java.io.*;
-import java.util.Arrays;
 
 @Service
 @RequestHandler(path="files")
 public class FileRequestHandler implements IRequestHandler {
 
-    public String response ( Request request ) {
+    public String getDirFromArgs ( Request request ) {
 
-        String dir = null;
-        String fileSize = null;
-        String filename = request.getEndpointParsed()[2];
-        String fileLine = null;
+        String result = null;
 
         for (int i=0; i < request.getArgs().length; i++) {
             String key = request.getArgs()[i];
             if ("--directory".equals(key)) {
-                dir = request.getArgs()[i+1];
+                result = request.getArgs()[i+1];
                 break;
             }
         }
+        return result;
+    }
+
+    public String getResponse ( Request request ) {
+
+        String dir = getDirFromArgs( request );
+        String fileSize;
+        String filename = request.getEndpointParsed()[2];
+        String fileLine;
 
         File file = new File(dir,filename);
 
@@ -41,6 +45,41 @@ public class FileRequestHandler implements IRequestHandler {
 
         return "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\n\r\nContent-Length: " + fileSize + "\r\n\r\n" + fileLine;
 
+    }
+
+    @Override
+    public String postResponse ( Request request ) {
+
+        String dir = getDirFromArgs( request );
+        String filename = null;
+        String fileContent = request.getBody();
+
+        String[] requestEndpointParsed = request.getEndpointParsed();
+
+        if ( requestEndpointParsed.length > 2 )
+            filename = request.getEndpointParsed()[2];
+        else
+            return "HTTP/1.1 400 Bad Request: No filename given\r\n\r\n";
+
+        File file = new File (dir,filename);
+
+        try {
+            boolean created = file.createNewFile();
+            if ( !created ) {
+                System.out.println("File exists, deleting and creating new");
+                file.delete();
+                file.createNewFile();
+            }
+
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(fileContent);
+            fileWriter.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "HTTP/1.1 201 Created\r\n\r\n";
     }
 
 }

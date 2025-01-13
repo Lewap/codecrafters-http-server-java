@@ -81,7 +81,13 @@ public class RequestDispatcher {
 
             //TODO: check if class implements IRequestHandler
 
-            Method responseMethod  = requestHandlerClass.getMethod("response", Request.class );
+            Method responseMethod = null;
+
+            if ("GET".equals(request.getVERB()))
+                responseMethod = requestHandlerClass.getMethod("getResponse", Request.class );
+
+            if ("POST".equals(request.getVERB()))
+                responseMethod = requestHandlerClass.getMethod("postResponse", Request.class );
 
             response = (String) responseMethod.invoke( requestHandlerClass.getDeclaredConstructor().newInstance(), request );
 

@@ -4,6 +4,8 @@ import request.Request;
 
 public interface IRequestHandler {
 
-    public String response ( Request request );
+    public String getResponse ( Request request );
+
+    public String postResponse ( Request request );
 
 }

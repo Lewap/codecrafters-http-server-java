@@ -60,7 +60,7 @@ public class MyServer {
 
         @Override
         public void run () {
-            System.out.println("accepted new connection");
+            System.out.println("accepted new connection on a new thread");
 
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -73,14 +73,28 @@ public class MyServer {
 
                 while ((inputLine = in.readLine()) != null) {
                     //
-                    System.out.println("READ request line " + inputLine + " length = " + inputLine.length());
+                    //System.out.println("READ request line " + inputLine + " length = " + inputLine.length());
                     requestLines.add(inputLine);
 
-                    if ( inputLine.length() == 0 ) { //the final line of the Request - now perform the response
+                    if ( inputLine.length() == 0 ) { //the final line of the Request Headers
 
                         request = new Request( requestLines, MyServer.args  );
 
-                        System.out.println("calling the request dispatcher");
+                        int contentLength = request.getContentLength();
+                        System.out.println("content length " + contentLength);
+
+                        if ( contentLength > 0) {
+
+                            char[] bodyChars = new char[contentLength];
+
+                            int charsRead = in.read(bodyChars, 0, contentLength);
+                            String body = new String(bodyChars, 0, charsRead);
+
+                            request.setBody(body);
+
+                        }
+
+                        //System.out.println("calling the request dispatcher");
                         requestDispatcher = new RequestDispatcher();
 
                         out.println(requestDispatcher.invokeRequestHandler(request));
