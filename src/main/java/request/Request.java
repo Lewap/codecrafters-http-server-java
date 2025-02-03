@@ -38,8 +38,8 @@ public class Request {
                     String headerValue = null;
                     if (indOfTheFirstColon != -1)
                     {
-                        headerName = requestHeaderLine.substring(0 , indOfTheFirstColon);
-                        headerValue = requestHeaderLine.substring(indOfTheFirstColon + 1);
+                        headerName = requestHeaderLine.substring(0 , indOfTheFirstColon).replace(" ","");
+                        headerValue = requestHeaderLine.substring(indOfTheFirstColon + 1).replace(" ","");
                     }
 
                     header.put(headerName, headerValue);

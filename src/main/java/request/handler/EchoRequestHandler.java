@@ -25,9 +25,6 @@ public class EchoRequestHandler implements IRequestHandler {
         Map<String,String> requestHeader = request.getHeader();
 
         String[] acceptEncodingParsed = requestHeader.get("Accept-Encoding").split(",");
-        for (int i=0; i<acceptEncodingParsed.length; i++) {
-            acceptEncodingParsed[i] = acceptEncodingParsed[i].replace(" ","");
-        }
 
         Map<String,String> responseHeaders = new HashMap<>();
 
