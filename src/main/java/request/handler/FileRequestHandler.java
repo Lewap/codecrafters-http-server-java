@@ -1,10 +1,16 @@
 package request.handler;
 
-import annotations.RequestHandler;
 import org.springframework.stereotype.Service;
-import request.Request;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 
 import java.io.*;
+import java.util.HashMap;
+
+import annotations.RequestHandler;
+
+import request.Request;
+import request.Response;
 
 @Service
 @RequestHandler(path="files")
@@ -24,7 +30,8 @@ public class FileRequestHandler implements IRequestHandler {
         return result;
     }
 
-    public String getResponse ( Request request ) {
+    @Override
+    public Response getResponse (Request request ) {
 
         String dir = getDirFromArgs( request );
         String fileSize;
@@ -39,16 +46,23 @@ public class FileRequestHandler implements IRequestHandler {
             fileLine = reader.readLine();
             reader.close();
         } catch (IOException e) {
-            return "HTTP/1.1 404 Not Found\r\n\r\n";
+            return new Response(HttpStatus.NOT_FOUND);
             //TODO: would be better to implement this using an exception and notify the dispatcher to revert to the NotFoundRequestHandler
         }
 
-        return "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\n\r\nContent-Length: " + fileSize + "\r\n\r\n" + fileLine;
+        return new Response (
+                HttpStatus.OK,
+                new HashMap<>(){{
+                    put("Content-Type", String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
+                    put("Content-Length",fileSize);
+                }},
+                fileLine
+        );
 
     }
 
     @Override
-    public String postResponse ( Request request ) {
+    public Response postResponse ( Request request ) {
 
         String dir = getDirFromArgs( request );
         String filename = null;
@@ -58,8 +72,9 @@ public class FileRequestHandler implements IRequestHandler {
 
         if ( requestEndpointParsed.length > 2 )
             filename = request.getEndpointParsed()[2];
-        else
-            return "HTTP/1.1 400 Bad Request: No filename given\r\n\r\n";
+        else {
+            return new Response(HttpStatus.BAD_REQUEST, "No filename given");
+        }
 
         File file = new File (dir,filename);
 
@@ -79,7 +94,7 @@ public class FileRequestHandler implements IRequestHandler {
             e.printStackTrace();
         }
 
-        return "HTTP/1.1 201 Created\r\n\r\n";
+        return new Response(HttpStatus.CREATED);
     }
 
 }

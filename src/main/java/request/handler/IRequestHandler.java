@@ -1,11 +1,12 @@
 package request.handler;
 
 import request.Request;
+import request.Response;
 
 public interface IRequestHandler {
 
-    public String getResponse ( Request request );
+    public Response getResponse ( Request request );
 
-    public String postResponse ( Request request );
+    public Response postResponse ( Request request );
 
 }

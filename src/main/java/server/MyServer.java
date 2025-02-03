@@ -31,6 +31,7 @@ public class MyServer {
             serverSocket.setReuseAddress(true);
             while (true) {
                 new connectionHandler (serverSocket.accept()).start();
+                System.out.println("New connection received " + java.time.LocalDateTime.now());
             }
 
         } catch (IOException ex) {
@@ -60,7 +61,6 @@ public class MyServer {
 
         @Override
         public void run () {
-            System.out.println("accepted new connection on a new thread");
 
             try {
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -80,8 +80,8 @@ public class MyServer {
 
                         request = new Request( requestLines, MyServer.args  );
 
-                        int contentLength = request.getContentLength();
-                        System.out.println("content length " + contentLength);
+                        String cl = request.getHeader().get("Content-Length");
+                        int contentLength = Integer.parseInt(cl==null?"0":cl);
 
                         if ( contentLength > 0) {
 
@@ -94,7 +94,6 @@ public class MyServer {
 
                         }
 
-                        //System.out.println("calling the request dispatcher");
                         requestDispatcher = new RequestDispatcher();
 
                         out.println(requestDispatcher.invokeRequestHandler(request));

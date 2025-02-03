@@ -2,30 +2,49 @@ package request.handler;
 
 import annotations.RequestHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import request.Request;
+import request.Response;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequestHandler(path="echo")
 public class EchoRequestHandler implements IRequestHandler {
 
     @Override
-    public String getResponse ( Request request ) {
+    public Response getResponse ( Request request ) {
 
-        String result = null;
+        Response response;
+
         String[] endpointParsed = request.getEndpointParsed();
+        Map<String,String> requestHeader = request.getHeader();
+        String acceptEncoding = requestHeader.get("Accept-Encoding");
+
+        Map<String,String> responseHeaders = new HashMap<>();
 
         if ( endpointParsed.length <= 2 )
-            return "HTTP/1.1 400 Bad Request: No echo content given\r\n\r\n";
+            return new Response(HttpStatus.BAD_REQUEST, "No echo content given");
 
-        result = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + endpointParsed[2].length() + "\r\n\r\n" + endpointParsed[2];
+        responseHeaders.put("Content-Type", String.valueOf(MediaType.TEXT_PLAIN));
+        responseHeaders.put("Content-Length", String.valueOf(endpointParsed[2].length()));
+        if ( "gzip".equals(acceptEncoding) ) {
+            responseHeaders.put("Content-Encoding", acceptEncoding);
+        }
 
-        return result;
+        response = new Response(
+                HttpStatus.OK,
+                responseHeaders,
+                endpointParsed[2]
+        );
+
+        return response;
     }
 
     @Override
-    public String postResponse ( Request request ) {
+    public Response postResponse ( Request request ) {
         return null;
     }
 

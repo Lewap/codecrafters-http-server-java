@@ -1,27 +1,53 @@
 package request;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Request {
 
-    private final List<String> requestLines;
+    private final List<String> requestHeaderLines;
     private final String[] args;
     private String body;
 
-    public Request ( List<String> requestLines, String[] args ) {
-        this.requestLines = requestLines;
+    public Request ( List<String> requestHeaderLines, String[] args ) {
+        this.requestHeaderLines = requestHeaderLines;
         this.args = args;
+        setHeader();
     }
 
     public String[] getArgs () {
         return this.args;
     }
+    
+    private Map<String, String> header;
+    
+    private void setHeader () {
+        
+        header = new HashMap<>();
+        
+        for (int i=0; i<this.requestHeaderLines.size(); i++) {
+            if ( i==0 ) {
+                header.put("Start-Line",requestHeaderLines.get(i));
+            } else {
+                String requestHeaderLine = requestHeaderLines.get(i);
+                if ( requestHeaderLine.length() > 0 ) {
+                    String[] requestHeaderLinesParsed = requestHeaderLines.get(i).split(" ");
+                    header.put(requestHeaderLinesParsed[0].replace(":",""), requestHeaderLinesParsed[1]);
+                }
+            }
+        }
+    }
+
+    public Map<String,String> getHeader () {
+        return header;
+    }
 
     public String getRootOfTheEndpoint () {
 
         String result;
-        String[] VERBLineParsed = getVERBLineParsed();
-        String uri = VERBLineParsed[VERBLineParsed.length-2];
+        String[] StartLineParsed = header.get("Start-Line").split(" ");
+        String uri = StartLineParsed[StartLineParsed.length-2];
         String[] uriParsed = uri.split("/");
 
         if (uriParsed.length == 0) {
@@ -35,52 +61,16 @@ public class Request {
 
     public String[] getEndpointParsed () {
 
-        String[] VERBLineParsed = getVERBLineParsed();
-        String uri = VERBLineParsed[VERBLineParsed.length-2];
+        String[] StartLineParsed = header.get("Start-Line").split(" ");
+        String uri = StartLineParsed[StartLineParsed.length-2];
 
         return uri.split("/");
 
     }
 
-    public String[] getVERBLineParsed () {
-
-        return this.requestLines.get(0).split(" ");
-
-    }
-
     public String getVERB () {
 
-        return getVERBLineParsed()[0];
-
-    }
-
-    public String[] getUserAgentParsed () {
-
-        String[] result = null;
-        String[] UserAgentLineParsed;
-
-        for (String requestLine : this.requestLines) {
-            if ( requestLine.startsWith("User-Agent:") ) {
-                UserAgentLineParsed = requestLine.split(" ");
-                result = UserAgentLineParsed;
-            }
-        }
-        return result;
-    }
-
-    public int getContentLength () {
-
-        int result = -1;
-        String[] ContentLengthLineParsed = null;
-
-        for (String requestLine : this.requestLines) {
-            if ( requestLine.startsWith("Content-Length:") ) {
-                ContentLengthLineParsed = requestLine.split(" ");
-                result = Integer.parseInt(ContentLengthLineParsed[1]);
-            }
-        }
-
-        return result;
+        return header.get("Start-Line").split(" ")[0];
 
     }
 
