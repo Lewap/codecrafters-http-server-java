@@ -24,8 +24,6 @@ public class EchoRequestHandler implements IRequestHandler {
         String[] endpointParsed = request.getEndpointParsed();
         Map<String,String> requestHeader = request.getHeader();
 
-        String[] acceptEncodingParsed = requestHeader.get("Accept-Encoding").split(",");
-
         Map<String,String> responseHeaders = new HashMap<>();
 
         if ( endpointParsed.length <= 2 )
@@ -34,8 +32,13 @@ public class EchoRequestHandler implements IRequestHandler {
         responseHeaders.put("Content-Type", String.valueOf(MediaType.TEXT_PLAIN));
         responseHeaders.put("Content-Length", String.valueOf(endpointParsed[2].length()));
 
-        if ( SupportedContentEncoding.isSupported(acceptEncodingParsed) ) {
-            responseHeaders.put("Content-Encoding", SupportedContentEncoding.GZIP.getValue());
+        String[] acceptEncodingParsed = null;
+
+        if ( requestHeader.get("Accept-Encoding") != null ) {
+            acceptEncodingParsed = requestHeader.get("Accept-Encoding").split(",");
+            if ( SupportedContentEncoding.isSupported(acceptEncodingParsed) ) {
+                responseHeaders.put("Content-Encoding", SupportedContentEncoding.GZIP.getValue());
+            }
         }
 
         response = new Response(
