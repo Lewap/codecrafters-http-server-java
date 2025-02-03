@@ -59,10 +59,11 @@ public class Response {
     @Override
     public String toString () {
 
-        String startLineStatusCodeCodeCraftersFriendly = this.startLineStatusCode.toString();
+        String startLineStatusString = this.startLineStatusCode.toString();
 
-        startLineStatusCodeCodeCraftersFriendly.replace("CREATED","Created")
-                .replace("NOT_FOUND","Not Found");
+        String startLineStatusCodeCodeCraftersFriendly = startLineStatusString.replace("CREATED","Created")
+                .replace("NOT_FOUND","Not Found")
+        ;
 
         String startLineString = this.startLineProtocol + " "
                 + startLineStatusCodeCodeCraftersFriendly;
