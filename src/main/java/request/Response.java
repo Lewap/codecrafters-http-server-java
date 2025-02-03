@@ -40,18 +40,6 @@ public class Response {
     Map<String, String> headers;
     String body;
 
-    /*public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }*/
-
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }

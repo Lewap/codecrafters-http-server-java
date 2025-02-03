@@ -32,8 +32,17 @@ public class Request {
             } else {
                 String requestHeaderLine = requestHeaderLines.get(i);
                 if ( requestHeaderLine.length() > 0 ) {
-                    String[] requestHeaderLinesParsed = requestHeaderLines.get(i).split(" ");
-                    header.put(requestHeaderLinesParsed[0].replace(":",""), requestHeaderLinesParsed[1]);
+                    int indOfTheFirstColon = requestHeaderLine.indexOf(":");
+
+                    String headerName = null;
+                    String headerValue = null;
+                    if (indOfTheFirstColon != -1)
+                    {
+                        headerName = requestHeaderLine.substring(0 , indOfTheFirstColon);
+                        headerValue = requestHeaderLine.substring(indOfTheFirstColon + 1);
+                    }
+
+                    header.put(headerName, headerValue);
                 }
             }
         }

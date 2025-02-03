@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import request.Request;
 import request.Response;
 
+import server.SupportedContentEncoding;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +23,11 @@ public class EchoRequestHandler implements IRequestHandler {
 
         String[] endpointParsed = request.getEndpointParsed();
         Map<String,String> requestHeader = request.getHeader();
-        String acceptEncoding = requestHeader.get("Accept-Encoding");
+
+        String[] acceptEncodingParsed = requestHeader.get("Accept-Encoding").split(",");
+        for (int i=0; i<acceptEncodingParsed.length; i++) {
+            acceptEncodingParsed[i] = acceptEncodingParsed[i].replace(" ","");
+        }
 
         Map<String,String> responseHeaders = new HashMap<>();
 
@@ -30,8 +36,9 @@ public class EchoRequestHandler implements IRequestHandler {
 
         responseHeaders.put("Content-Type", String.valueOf(MediaType.TEXT_PLAIN));
         responseHeaders.put("Content-Length", String.valueOf(endpointParsed[2].length()));
-        if ( "gzip".equals(acceptEncoding) ) {
-            responseHeaders.put("Content-Encoding", acceptEncoding);
+
+        if ( SupportedContentEncoding.isSupported(acceptEncodingParsed) ) {
+            responseHeaders.put("Content-Encoding", SupportedContentEncoding.GZIP.getValue());
         }
 
         response = new Response(
