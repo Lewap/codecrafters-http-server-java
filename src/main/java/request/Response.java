@@ -58,8 +58,14 @@ public class Response {
 
     @Override
     public String toString () {
+
+        String startLineStatusCodeCodeCraftersFriendly = this.startLineStatusCode.toString();
+
+        startLineStatusCodeCodeCraftersFriendly.replace("CREATED","Created")
+                .replace("NOT_FOUND","Not Found");
+
         String startLineString = this.startLineProtocol + " "
-                + this.startLineStatusCode.toString();
+                + startLineStatusCodeCodeCraftersFriendly;
 
         if ( startLineStatusText != null ) {
             startLineString += " " + this.startLineStatusText;
