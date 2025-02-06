@@ -1,14 +1,13 @@
 package server;
 
 import request.Request;
+import request.Response;
 import request.dispatcher.RequestDispatcher;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,8 +62,11 @@ public class MyServer {
         public void run () {
 
             try {
+
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                OutputStream out = clientSocket.getOutputStream();
+                //the PrintWriter couldn't handle writing a byte array
+                //PrintWriter out = new PrintWriter(clientSocketOutputStream, true);
 
                 String inputLine;
                 List<String> requestLines = new ArrayList<>();
@@ -72,8 +74,7 @@ public class MyServer {
                 RequestDispatcher requestDispatcher = null;
 
                 while ((inputLine = in.readLine()) != null) {
-                    //
-                    //System.out.println("READ request line " + inputLine + " length = " + inputLine.length());
+
                     requestLines.add(inputLine);
 
                     if ( inputLine.length() == 0 ) { //the final line of the Request Headers
@@ -96,7 +97,15 @@ public class MyServer {
 
                         requestDispatcher = new RequestDispatcher();
 
-                        out.println(requestDispatcher.invokeRequestHandler(request));
+                        Response response = requestDispatcher.invokeRequestHandler(request);
+
+                        out.write(response.toString().getBytes(StandardCharsets.UTF_8));
+
+                        byte[] bodyAsByteArray = response.getBodyAsByteArray();
+
+                        //for writing the body as not changed byte array - needed for gzip compression
+                        if ( bodyAsByteArray != null )
+                            out.write(bodyAsByteArray);
 
                     }
 

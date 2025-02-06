@@ -64,7 +64,7 @@ public class RequestDispatcher {
 
     }
 
-    public String invokeRequestHandler (Request request ) {
+    public Response invokeRequestHandler (Request request ) {
 
         String className = getEndpointHandlingClassName( request );
         Class<?> requestHandlerClass = null;
@@ -89,7 +89,7 @@ public class RequestDispatcher {
             throw new RuntimeException(e);
         }
 
-        return response.toString();
+        return response;
 
     }
 

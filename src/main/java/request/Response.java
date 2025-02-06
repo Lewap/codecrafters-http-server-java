@@ -25,23 +25,23 @@ public class Response {
         this.body = body;
     }
 
-    /*public Response(HttpStatus startLineStatusCode, String startLineStatusText, Map<String, String> headers, String body) {
+    public Response(HttpStatus startLineStatusCode, Map<String, String> headers, byte[] body) {
         this.startLineProtocol = DEFAULT_HTTP_PROTOCOL;
         this.startLineStatusCode = startLineStatusCode;
-        this.startLineStatusText = startLineStatusText;
         this.headers = headers;
-        this.body = body;
-    }*/
+        this.bodyAsByteArray = body;
+    }
 
     private String startLineProtocol;
     private HttpStatus startLineStatusCode;
     private String startLineStatusText;
 
-    Map<String, String> headers;
-    String body;
+    private Map<String, String> headers;
+    private String body;
+    private byte[] bodyAsByteArray;
 
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
+    public byte[] getBodyAsByteArray () {
+        return bodyAsByteArray;
     }
 
     @Override

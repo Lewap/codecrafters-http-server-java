@@ -10,8 +10,10 @@ import request.Response;
 import server.SupportedContentEncoding;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
@@ -47,7 +49,7 @@ public class EchoRequestHandler implements IRequestHandler {
         String[] acceptEncodingParsed = null;
 
         String body = endpointParsed[2];
-        System.out.println("body as is: " + body);
+        byte[] bodyAsByteArray = null;
 
         if ( requestHeader.get("Accept-Encoding") != null ) {
             acceptEncodingParsed = requestHeader.get("Accept-Encoding").split(",");
@@ -56,14 +58,25 @@ public class EchoRequestHandler implements IRequestHandler {
 
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 try {
-                    gzip(new ByteArrayInputStream(body.getBytes()), os, body.length());
+                    gzip(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)), os, body.length());
                 } catch (IOException e) {
                     return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Error encoding input: " + e.getMessage());
                 }
 
-                body = os.toString();
+                bodyAsByteArray = os.toByteArray();
 
-                System.out.println("body compressed: " + body);
+                responseHeaders.put("Content-Length", String.valueOf(bodyAsByteArray.length));
+
+                response = new Response(
+                        HttpStatus.OK,
+                        responseHeaders,
+                        bodyAsByteArray
+                );
+
+               //System.out.println(" hex " + Arrays.toString(new String[]{HexFormat.of().formatHex(bodyAsByteArray)}));
+
+                return response;
+
             }
         }
 
