@@ -47,14 +47,10 @@ public class Response {
     @Override
     public String toString () {
 
-        String startLineStatusString = this.startLineStatusCode.toString();
-
-        String startLineStatusCodeCodeCraftersFriendly = startLineStatusString.replace("CREATED","Created")
-                .replace("NOT_FOUND","Not Found")
-        ;
+        String startLineStatusString = this.startLineStatusCode.value() + " " + this.startLineStatusCode.getReasonPhrase();
 
         String startLineString = this.startLineProtocol + " "
-                + startLineStatusCodeCodeCraftersFriendly;
+                + startLineStatusString;
 
         if ( startLineStatusText != null ) {
             startLineString += " " + this.startLineStatusText;
