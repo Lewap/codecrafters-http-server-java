@@ -1,5 +1,7 @@
 package server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import request.Request;
 import request.Response;
 import request.dispatcher.RequestDispatcher;
@@ -12,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyServer {
+
+    private static final Logger logger = LogManager.getLogger(MyServer.class);
 
     private ServerSocket serverSocket;
     private static String[] args;
@@ -27,14 +31,17 @@ public class MyServer {
 
             // Since the tester restarts your program quite often, setting SO_REUSEADDR
             // ensures that we don't run into 'Address already in use' errors
-            serverSocket.setReuseAddress(true);
+            //serverSocket.setReuseAddress(true);
             while (true) {
-                new connectionHandler (serverSocket.accept()).start();
-                System.out.println("New connection received " + java.time.LocalDateTime.now());
+                ConnectionHandler ch = new ConnectionHandler (serverSocket.accept());
+                String threadName = ch.getName();
+                ch.setName("ConnectionHandler-" + threadName);
+                ch.start();
+                logger.info("New connection accepted on thread: " + ch.getName());
             }
 
         } catch (IOException ex) {
-            System.out.println("Server start IO Exception: " + ex.getMessage());
+            logger.error("Server start IO Exception: " + ex.getMessage());
             throw new RuntimeException(ex);
         }
 
@@ -45,16 +52,16 @@ public class MyServer {
         try {
             serverSocket.close();
         } catch (IOException ex) {
-            System.out.println("Server stop IO Exception: " + ex.getMessage());
+            logger.error("Server stop IO Exception: " + ex.getMessage());
             throw new RuntimeException(ex);
         }
     }
 
-    private static class connectionHandler extends Thread {
+    private static class ConnectionHandler extends Thread {
 
         private final Socket clientSocket;
 
-        public connectionHandler (Socket socket) {
+        public ConnectionHandler (Socket socket) {
             this.clientSocket = socket;
         }
 
@@ -63,10 +70,10 @@ public class MyServer {
 
             try {
 
+                logger.info("Connected client: " + clientSocket.getInetAddress());
+
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 OutputStream out = clientSocket.getOutputStream();
-                //the PrintWriter couldn't handle writing a byte array
-                //PrintWriter out = new PrintWriter(clientSocketOutputStream, true);
 
                 String inputLine;
                 List<String> requestLines = new ArrayList<>();
@@ -95,6 +102,8 @@ public class MyServer {
 
                         }
 
+                        logger.info("Request: " + request);
+
                         requestDispatcher = new RequestDispatcher();
 
                         Response response = requestDispatcher.invokeRequestHandler(request);
@@ -107,6 +116,8 @@ public class MyServer {
                         if ( bodyAsByteArray != null )
                             out.write(bodyAsByteArray);
 
+                        requestLines.clear();
+
                     }
 
                 }
@@ -116,7 +127,7 @@ public class MyServer {
                 clientSocket.close();
 
             } catch (IOException ex) {
-                System.out.println("connectionHandler IO Exception: " + ex.getMessage());
+                logger.error("ConnectionHandler IO Exception: " + ex.getMessage());
                 throw new RuntimeException(ex);
             }
 

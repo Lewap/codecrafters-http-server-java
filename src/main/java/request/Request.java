@@ -91,4 +91,23 @@ public class Request {
         return this.body;
     }
 
+    @Override
+    public String toString() {
+
+        StringBuilder resultBuilder = new StringBuilder("[");
+        String result;
+
+        for ( Map.Entry<String,String> header : header.entrySet() ) {
+            resultBuilder.append(header.getKey())
+                    .append(": ")
+                    .append(header.getValue())
+                    .append(", ");
+        }
+
+        result = resultBuilder.substring(0, resultBuilder.length() - 2);
+        result += "]";
+
+        return result;
+
+    }
 }

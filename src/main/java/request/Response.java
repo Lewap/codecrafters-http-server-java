@@ -44,6 +44,10 @@ public class Response {
         return bodyAsByteArray;
     }
 
+    public void setBody (String body) {
+        this.body = body;
+    }
+
     @Override
     public String toString () {
 

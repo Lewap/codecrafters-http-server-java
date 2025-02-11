@@ -19,6 +19,16 @@
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -27,6 +37,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
         <spring.version>6.2.2</spring.version>
+        <log4j.version>2.24.3</log4j.version>
     </properties>
 
     <build>
@@ -44,7 +55,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <!-- This is the main class of your program which will be executed-->
-                            <mainClass>Main</mainClass>
+                            <mainClass>main.Main</mainClass>
                         </manifest>
                     </archive>
                     <outputDirectory>${dir}</outputDirectory>
